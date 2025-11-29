@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  # 1. Yerel Blockchain (Ganache)
+  ganache:
+    image: trufflesuite/ganache:latest
+    # Belirli bir mnemonic veriyoruz ki her açılışta cüzdan adresleri aynı kalsın
+    command: ["--wallet.mnemonic", "test test test test test test test test test test test junk", "--server.host", "0.0.0.0", "--chain.chainId", "1337"]
+    ports:
+      - "8545:8545"
+    networks:
+      - certnet
+
+  # 2. Akıllı Kontrat Geliştirme Ortamı
+  hardhat:
+    build: ./dapp
+    volumes:
+      - ./dapp:/workspace
+    depends_on:
+      - ganache
+    networks:
+      - certnet
+    # Konteyner açık kalsın, biz içine girip komut çalıştıracağız
+    command: bash -c "npm install && sleep infinity"
+
+  # 3. İstemci Uygulaması
+  client:
+    build: ./client
+    volumes:
+      - ./client:/app
+    environment:
+      RPC_URL: http://ganache:8545
+      # Kontrat adresini deploy ettikten sonra buraya yazacağız, şimdilik boş
+      CONTRACT_ADDRESS: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0" 
+    depends_on:
+      - hardhat
+    networks:
+      - certnet
+
+networks:
+  certnet:
+    name: certnet
