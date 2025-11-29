@@ -29,7 +29,13 @@ async function main() {
     // Bu key, 'test test ...' mnemonic'inin 0. indexli (Owner) hesabıdır.
     // Ganache & Hardhat varsayılan Mnemonic'inin 0. indexli (OWNER) hesabı
 // Adresi: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+    //Orijinal cüzdan (Owner Account #0)
     const wallet = new ethers.Wallet("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80", provider);
+
+    // --- SENARYO 6.2 İÇİN YETKİSİZ CÜZDAN ---
+// Bu cüzdan Account #1'dir (Owner Account #0 idi).
+//const wallet = new ethers.Wallet("0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d", provider);
 
     const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
 
@@ -64,7 +70,7 @@ async function main() {
         console.error("Hata (Issue):", e.message);
     }
 
-    // 3. Sertifika Doğrulama (Verify)
+    // 3. Sertifika Doğrulama (Verify) orijinal veri ile
     try {
         console.log("Sertifika doğrulanıyor...");
         const result = await contract.verify(certId, holderHash);
@@ -76,7 +82,30 @@ async function main() {
         console.log("Veren Kurum:", result.issuer);
     } catch (e) {
          console.error("Hata (Verify):", e.message);
-    }
+    } 
+
+
+         // 3. Sertifika Doğrulama (Verify) 6.3 senaryosu için - veri tahribatı simülasyonu
+       /* try {
+            console.log("Sertifika doğrulanıyor...");
+            
+            // --- SENARYO 6.3: VERİ TAHRİBATI SİMÜLASYONU ---
+            console.log("!!! DİKKAT: Kötü niyetli kişi veriyi değiştirdi !!!");
+            // Gerçek isim 'Ahmet Yilmaz' idi, biz 'Mehmet Yilmaz' yaptık.
+            const fakePayload = `${ogrNo}|MEHMET YILMAZ|${salt}`; 
+            const fakeHash = ethers.keccak256(ethers.toUtf8Bytes(fakePayload));
+
+            // Doğrulamaya yanlış hash gönderiyoruz
+            const result = await contract.verify(certId, fakeHash); 
+            
+            console.log("\n--- DOĞRULAMA SONUCU ---");
+            console.log("Geçerli mi?:", result.valid); // BURASI FALSE ÇIKMALI
+            console.log("İptal durumu:", result.isRevoked);
+            
+        } catch (e) {
+             console.error("Hata (Verify):", e.message);
+        } */
+
 }
 
 // Basit bir bekleme döngüsü, konteyner hemen kapanmasın diye
