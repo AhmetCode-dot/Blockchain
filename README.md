@@ -114,5 +114,7 @@ Formül: Hash = keccak256(ÖğrenciNo + AdSoyad + Salt)
 
 Yetki Kontrolü: Kontrat üzerinde onlyOwner modifiyeri bulunur. Sadece yetkili kurum (Owner cüzdanı) sertifika oluşturabilir veya iptal edebilir.
 
+Proje https://github.com/AhmetCode-dot/Blockchain adresine push edilmiştir.
+
 
 
